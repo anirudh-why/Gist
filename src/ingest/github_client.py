@@ -127,6 +127,21 @@ TEXT_EXTENSIONS = {
     ".ipynb",
 }
 
+# Default path segments to exclude from ingestion. These are common
+# dependency or build folders which inflate repository size (node_modules,
+# caches, virtualenvs, build outputs, etc.). We check path segments so
+# patterns like `frontend/node_modules/...` are excluded.
+PATH_EXCLUDES = {
+    "node_modules",
+    ".cache",
+    "dist",
+    "build",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "vendor",
+}
+
 
 def is_text_file(path: str, include_exts: Optional[set] = None) -> bool:
     ext = os.path.splitext(path)[1].lower()
@@ -135,7 +150,7 @@ def is_text_file(path: str, include_exts: Optional[set] = None) -> bool:
     return ext in include_exts
 
 
-def filter_paths(tree: List[Dict], include_exts: Optional[set] = None, max_file_size: int = 1_000_000) -> List[Dict]:
+def filter_paths(tree: List[Dict], include_exts: Optional[set] = None, max_file_size: int = 1_000_000, path_excludes: Optional[set] = None) -> List[Dict]:
     """Filter tree entries to text files and reasonable size.
 
     Parameters
@@ -147,11 +162,20 @@ def filter_paths(tree: List[Dict], include_exts: Optional[set] = None, max_file_
     # Only include blobs (actual file contents). Exclude directories and other
     # git objects.
     filtered = []
+    # Normalize excludes
+    excludes = set(path_excludes) if path_excludes else set()
+    excludes = excludes.union(PATH_EXCLUDES)
+
     for entry in tree:
         if entry.get("type") != "blob":
             # not a file
             continue
         path = entry.get("path", "")
+        # Skip common vendor/build paths by checking path segments
+        parts = [p for p in path.split("/") if p]
+        if any(seg in excludes for seg in parts):
+            log.debug("Excluding path by segment match: %s", path)
+            continue
         # Extension-based filtering is fast and typically accurate enough
         # to exclude binary assets like images or compiled artifacts.
         if not is_text_file(path, include_exts):

@@ -1,11 +1,20 @@
 # Python
 __pycache__/
 *.pyc
-.env
+*.pyo
+*.egg-info/
 .venv/
+venv/
+env/
 
-# data
+# Data artifacts
 data/
+chroma_db*/
 
-# VSCode
+# IDE
 .vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
