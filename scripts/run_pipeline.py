@@ -74,7 +74,7 @@ def store_embeddings(chunks_jsonl: str, chroma_dir: str, collection: str, model:
 	# Lazy import to avoid requiring packages earlier
 	try:
 		from ingest import embeddings
-		import chromadb
+		import chromadb  # type: ignore[import-not-found]
 	except Exception as e:
 		print("Missing dependencies for embeddings or Chroma:", e)
 		print("Install chromadb and sentence-transformers, or use --use-dummy-embeddings.")

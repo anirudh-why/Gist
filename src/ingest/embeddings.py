@@ -79,7 +79,7 @@ def process_and_store(jsonl_path: str,
     """
     # Lazy import chromadb to provide an informative error if missing
     try:
-        import chromadb
+        import chromadb  # type: ignore[import-not-found]
     except Exception as e:
         raise RuntimeError("The `chromadb` package is required. Install with `pip install chromadb`.") from e
 
