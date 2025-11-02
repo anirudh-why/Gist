@@ -7,4 +7,5 @@ sentence-transformers>=2.2.2
 # Load environment variables from .env if present
 python-dotenv>=1.0.0
 # Note: local GGUF/llama-cpp support removed per project configuration; use API providers (Groq/HF/OpenAI-compatible).
+streamlit>=1.22.0
 
